@@ -54,7 +54,7 @@ cd frontend
 npm install
 ```
 
-2. Create `.env.local` file in the frontend directory:
+2. Create `.env` file in the frontend directory:
 ```env
 VITE_API_URL=http://localhost:8000/api
 VITE_MAPBOX_TOKEN=your_mapbox_token_here
