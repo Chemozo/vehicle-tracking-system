@@ -48,19 +48,24 @@ The backend will be available at http://localhost:8000
 
 ### Frontend Setup
 
-1. Install dependencies:
+1. Move to folder:
+```bash
+cd ..\frontend
+```
+
+2. Install dependencies:
 ```bash
 cd frontend
 npm install
 ```
 
-2. Create `.env` file in the frontend directory:
+3. Create `.env` file in the frontend directory:
 ```env
 VITE_API_URL=http://localhost:8000/api
 VITE_MAPBOX_TOKEN=your_mapbox_token_here
 ```
 
-3. Start the development server:
+4. Start the development server:
 ```bash
 npm run dev
 ```
