@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
-import { Button } from "@mui/material";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -8,14 +7,14 @@ import { createRoot } from "react-dom/client";
 import { useNavigate } from "react-router-dom";
 import { PopupContent } from "../../components/PopupComponent";
 import { Vehicle } from "../../types/vehicle";
-import { vehicleApi } from "../../utils/api";
+import { authApi, vehicleApi } from "../../utils/api";
+import axios from "axios";
 
 export const MapPage = () => {
   const navigate = useNavigate();
 
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | undefined>();
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const markers = useRef<{ [key: number]: mapboxgl.Marker }>({});
 
   useEffect(() => {
@@ -37,15 +36,41 @@ export const MapPage = () => {
     mapRef.current = newMap;
 
     return () => newMap.remove();
-  }, [vehicles]);
+  }, [markers]);
 
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
         const response = await vehicleApi.getAll();
+
         updateVehicleMarkers(response.data);
-        setVehicles(response.data);
       } catch (error) {
+        console.error("this ERROR!!!");
+
+        if (axios.isAxiosError(error)) {
+          console.log(error.response);
+          if (error.response?.status === 401) {
+            const token = localStorage.getItem("refreshToken");
+            if (token === null) {
+              navigate("/");
+              return;
+            }
+            try {
+              const response = await authApi.refresh(token);
+
+              console.log("Response:", response);
+
+              localStorage.setItem("token", response.data.access);
+              localStorage.setItem("refreshToken", response.data.refresh);
+            } catch (error) {
+              console.error("ERROR!!!");
+              console.error("Error refreshing token:", error);
+            }
+          }
+        } else {
+          navigate("/login");
+        }
+
         console.error("Error fetching vehicles:", error);
       }
     };
@@ -73,15 +98,10 @@ export const MapPage = () => {
           .addTo(mapRef.current);
       });
     };
-
     fetchVehicles();
     const interval = setInterval(fetchVehicles, 30000);
     return () => clearInterval(interval);
   }, []);
-
-  const handleButtonClick = () => {
-    navigate("/add-vehicle");
-  };
 
   return (
     <div style={{ position: "relative", height: "100%", width: "100%" }}>
@@ -90,18 +110,6 @@ export const MapPage = () => {
         className="map-container"
         style={{ height: "100%", width: "100%" }}
       />
-      <Button
-        variant="contained"
-        onClick={handleButtonClick}
-        style={{
-          position: "absolute",
-          bottom: "5vh",
-          left: "50vw",
-          zIndex: 1,
-        }}
-      >
-        Add Marker
-      </Button>
     </div>
   );
 };
