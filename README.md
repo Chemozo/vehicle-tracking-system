@@ -16,7 +16,7 @@
 
 ### Backend Setup
 
-1. Create and activate virtual environment (opotional):
+1. Create and activate virtual environment (optional):
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows use: venv\Scripts\activate
