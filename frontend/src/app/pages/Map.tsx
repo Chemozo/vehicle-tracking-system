@@ -101,7 +101,7 @@ export const MapPage = () => {
     fetchVehicles();
     const interval = setInterval(fetchVehicles, 30000);
     return () => clearInterval(interval);
-  }, []);
+  });
 
   return (
     <div style={{ position: "relative", height: "100%", width: "100%" }}>
