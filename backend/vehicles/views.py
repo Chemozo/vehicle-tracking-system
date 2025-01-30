@@ -28,9 +28,4 @@ def register_user(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
-        if 'username' in serializer.errors:
-            if 'unique' in serializer.errors['username'][0]:
-                return Response({'error': 'Username already exists2.'}, status=status.HTTP_400_BAD_REQUEST)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
