@@ -12,7 +12,6 @@ import axios from "axios";
 
 export const MapPage = () => {
   const navigate = useNavigate();
-
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | undefined>();
   const markers = useRef<{ [key: number]: mapboxgl.Marker }>({});
@@ -39,48 +38,29 @@ export const MapPage = () => {
   }, [markers]);
 
   useEffect(() => {
-    const fetchVehicles = async () => {
+    const refreshToken = async () => {
+      const token = localStorage.getItem("refreshToken");
+      if (!token) {
+        navigate("/");
+        return false;
+      }
+
       try {
-        const response = await vehicleApi.getAll();
-
-        updateVehicleMarkers(response.data);
+        const response = await authApi.refresh(token);
+        localStorage.setItem("token", response.data.access);
+        localStorage.setItem("refreshToken", response.data.refresh);
+        return true;
       } catch (error) {
-        console.error("this ERROR!!!");
-
-        if (axios.isAxiosError(error)) {
-          console.log(error.response);
-          if (error.response?.status === 401) {
-            const token = localStorage.getItem("refreshToken");
-            if (token === null) {
-              navigate("/");
-              return;
-            }
-            try {
-              const response = await authApi.refresh(token);
-
-              console.log("Response:", response);
-
-              localStorage.setItem("token", response.data.access);
-              localStorage.setItem("refreshToken", response.data.refresh);
-            } catch (error) {
-              console.error("ERROR!!!");
-              console.error("Error refreshing token:", error);
-            }
-          }
-        } else {
-          navigate("/login");
-        }
-
-        console.error("Error fetching vehicles:", error);
+        console.error("Error refreshing token:", error);
+        navigate("/");
+        return false;
       }
     };
 
     const updateVehicleMarkers = (vehicles: Vehicle[]) => {
-      // Remove old markers
       Object.values(markers.current).forEach((marker) => marker.remove());
       markers.current = {};
 
-      // Add new markers
       vehicles.forEach((vehicle) => {
         if (!mapRef.current) return;
 
@@ -98,10 +78,37 @@ export const MapPage = () => {
           .addTo(mapRef.current);
       });
     };
+
+    const fetchVehicles = async () => {
+      try {
+        const response = await vehicleApi.getAll();
+        updateVehicleMarkers(response.data);
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          const refreshSuccessful = await refreshToken();
+          if (refreshSuccessful) {
+            try {
+              const response = await vehicleApi.getAll();
+              updateVehicleMarkers(response.data);
+            } catch (retryError) {
+              console.error(
+                "Error fetching vehicles after token refresh:",
+                retryError
+              );
+            }
+          }
+        } else {
+          console.error("Error fetching vehicles:", error);
+        }
+      }
+    };
+
     fetchVehicles();
-    const interval = setInterval(fetchVehicles, 30000);
-    return () => clearInterval(interval);
-  });
+
+    const intervalId = setInterval(fetchVehicles, 30000);
+
+    return () => clearInterval(intervalId);
+  }, [navigate]);
 
   return (
     <div style={{ position: "relative", height: "100%", width: "100%" }}>
