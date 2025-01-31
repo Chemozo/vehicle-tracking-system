@@ -8,7 +8,6 @@ interface PopupContentProps {
 export const PopupContent = ({ vehicle }: PopupContentProps) => {
   return (
     <Paper elevation={3} style={{ padding: "10px", maxWidth: "200px" }}>
-      <Typography variant="h6">{vehicle.id}</Typography>
       <Typography variant="body2">{vehicle.plate_number}</Typography>
     </Paper>
   );
