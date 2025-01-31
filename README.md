@@ -31,6 +31,8 @@ source venv/bin/activate  # On Windows use: venv\Scripts\activate
 cd backend
 pip install -r requirements.txt
 ```
+4. Add environment variables at /backend level
+
 
 3. Run migrations:
 
