@@ -9,7 +9,8 @@ import { PopupContent } from "../../components/PopupComponent";
 import { Vehicle } from "../../types/vehicle";
 import { authApi, vehicleApi } from "../../utils/api";
 import axios from "axios";
-
+import AirportShuttleIcon from "@mui/icons-material/AirportShuttle";
+import SvgIcon from "@mui/icons-material/AirportShuttle";
 export const MapPage = () => {
   const navigate = useNavigate();
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -72,7 +73,19 @@ export const MapPage = () => {
           popupNode
         );
 
-        markers.current[vehicle.id] = new mapboxgl.Marker()
+        const icon = document.createElement("div");
+        const iconRoot = createRoot(icon);
+        iconRoot.render(
+          <SvgIcon
+            component={AirportShuttleIcon}
+            fontSize="large"
+            color="secondary"
+          />
+        );
+
+        markers.current[vehicle.id] = new mapboxgl.Marker({
+          element: icon,
+        })
           .setLngLat([vehicle.longitude, vehicle.latitude])
           .setPopup(popup)
           .addTo(mapRef.current);
