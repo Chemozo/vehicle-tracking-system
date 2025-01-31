@@ -89,7 +89,6 @@ if not DEBUG:
         }
     }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -156,7 +155,50 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:3000",
-    "https://vehicle-tracking-system-front.vercel.app"
+    "https://vehicle-tracking-system-front.vercel.app",
+    "https://chemozo.pythonanywhere.com"
 ]
 
+CORS_ALLOW_CREDENTIALS = True
+
+
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://vehicle-tracking-system-front.vercel.app",
+    "http://localhost:5173",
+    "http://localhost:3000"
+]
+
+
+
 CORS_ORIGIN_ALLOW_ALL = DEBUG
+
+
+
+
+
+
+
+
+
+
