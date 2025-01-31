@@ -1,4 +1,4 @@
-import { Formik, Form } from "formik";
+import { Formik, Form, FormikHelpers } from "formik";
 import { TextField, Button, Box, Typography, Container } from "@mui/material";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
@@ -18,7 +18,10 @@ const LocationSchema = Yup.object().shape({
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const handleSubmit = (values: LoginCredentials) => {
+  const handleSubmit = (
+    values: LoginCredentials,
+    { setErrors }: FormikHelpers<LoginCredentials>
+  ) => {
     console.log("imhere");
 
     const login = async () => {
@@ -31,8 +34,24 @@ export const LoginPage = () => {
 
         localStorage.setItem("refreshToken", response.data.refresh);
         navigate("/map");
-      } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
         console.error("Error logging in:", error);
+        if (error.response?.data) {
+          const apiError = error.response.data;
+          if (apiError.errors) {
+            setErrors(apiError.errors);
+          } else {
+            // Handle generic error
+            setErrors({ username: "Login failed", password: "Login failed" });
+          }
+        } else {
+          // Handle network or other errors
+          setErrors({
+            username: "An unexpected error occurred",
+            password: "An unexpected error occurred",
+          });
+        }
       }
     };
 
